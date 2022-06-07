@@ -4,58 +4,21 @@ import {Container, Row } from "reactstrap";
 
 import Baskets from "./Baskets";
 
-let basketsfromdb = [
-  {
-    id: 1,
-    title: "TODO",
-    type: "todo",
-    ownerid: 1,
-    canvasid: 1
-  },
-  {
-    id: 2,
-    title: "In Progress",
-    type: "doing",
-    ownerid: 1,
-    canvasid: 1
-  },
-  {
-    id: 3,
-    title: "Done",
-    type: "done",
-    ownerid: 1,
-    canvasid: 1
-  }
-]
-
-let itemsfromdb = [
-	{
-		id: 1,
-		title: "Item 1",
-		description: "This is the first item",
-		status: "todo",
-    ownerid: 1,
-    canvasid: 1
-	},
-	{
-		id: 2,
-		title: "Item 2",
-		description: "This is the second item",
-		status: "done",
-    ownerid: 1,
-    canvasid: 1
-	}
-  ]
-
-
 
 function Canvas() {
     const [baskets, setBaskets] = useState([]);
-    const [itemsGlobal, setItemsGlobal] = useState([...itemsfromdb]);
+    const [itemsGlobal, setItemsGlobal] = useState([]);
 
     useEffect(() => {
-        setBaskets(basketsfromdb);
-    }, [itemsGlobal] );
+        fetch('http://localhost:3001/baskets')
+          .then(res => res.json())
+          .then(data => setBaskets(data))
+          .catch(err => console.log(err));
+        fetch('http://localhost:3001/items')
+          .then(res => res.json())
+          .then(data => setItemsGlobal(data))
+          .catch(err => console.log(err));
+    }, [] );
 
     return(
         <>

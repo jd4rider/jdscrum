@@ -31,6 +31,13 @@ const Baskets = (props) => {
 		setTimeout(console.log(props.itemsGlobal), 1000);
 
 		props.setItemsGlobal(curritems);
+		fetch('http://localhost:3001/items/update', {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(curritems)
+		})
 	}
 
 	const onPlusClickHandler = (e, type) => {
@@ -45,10 +52,23 @@ const Baskets = (props) => {
 		
 
 		 props.setItemsGlobal([...props.itemsGlobal, newitem]);
+		 fetch('http://localhost:3001/items/insert', {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(newitem)
+		 }).then(res => console.log('Insert happened'));
 	}
 
 	const onItemDelete = (e, id) => {
-		if(window.confirm("Are you sure you want to delete this item?")) props.setItemsGlobal(props.itemsGlobal.filter(item => item.id !== id));
+		if(window.confirm("Are you sure you want to delete this item?")) {
+			props.setItemsGlobal(props.itemsGlobal.filter(item => item.id !== id));
+			fetch(`http://localhost:3001/items/delete/${id}`, {
+				method: 'DELETE'
+			}).then(res => console.log('Delete happened'));
+		}
 	}
 
 	// useEffect(() => {
