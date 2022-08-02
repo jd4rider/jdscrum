@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {Navbar, 
 	    NavItem, 
 		NavbarBrand, 
@@ -10,11 +10,25 @@ import {Navbar,
 		DropdownToggle,
 		DropdownMenu,
 		DropdownItem,
+		Dropdown,
 		NavbarText
 	} from 'reactstrap';
 
+import { useAuthUser } from 'react-auth-kit'
+import { useSignOut } from 'react-auth-kit'
+
 function Navigation(props) {
 	const [isOpen, setIsOpen] = useState(false);
+	const auth = useAuthUser()
+	const signOut = useSignOut()
+
+	const handleSignOut = () => {
+		signOut()
+	}
+
+	// const handleBubble = () => {
+	// 	props.getEverything()
+	// }
 
 	const handleNewCanvas = () => {
 		let newCanvasId;
@@ -23,34 +37,29 @@ function Navigation(props) {
 		} else {
 			newCanvasId = props.canvases[props.canvases.length-1].id + 1;
 		}
-		let newBasketsId;
-		if(!props.baskets[props.baskets.length-1].id) {
-			newCanvasId = 1;
-		} else {
-			newCanvasId = props.baskets[props.baskets.length-1].id + 1;
-		}
 		const newCanvas = {
 			id: newCanvasId,
 			title: prompt("Enter title"),
 			ownerid: props.currentUser.id,
 		}
+		console.log(props.basketcount);
 		const newBaskets = [
 			{
-				id: newBasketsId,
+				id: props.basketcount + 1,
 				title: "TODO",
 				type: "todo",
 				ownerid: props.currentUser.id,
 				canvasid: newCanvasId,
 			},
 			{
-				id: newBasketsId + 1,
+				id: props.basketcount + 2,
 				title: "In Progress",
 				type: "doing",
 				ownerid: props.currentUser.id,
 				canvasid: newCanvasId,
 			},
 			{
-				id: newBasketsId + 2,
+				id: props.basketcount + 3,
 				title: "Done",
 				type: "done",
 				ownerid: props.currentUser.id,
@@ -63,7 +72,8 @@ function Navigation(props) {
 			method: 'POST',
 			headers: {
 				'Accept': 'application/json',
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${auth().token}` 
 			},
 			body: JSON.stringify(newCanvas)
 		 }).then(res => console.log('Insert happened'));
@@ -72,11 +82,16 @@ function Navigation(props) {
 			method: 'POST',
 			headers: {
 				'Accept': 'application/json',
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${auth().token}` 
 			},
 			body: JSON.stringify(newBaskets)
 		 }).then(res => console.log('Insert happened'));
 	}
+
+	useEffect(() => {
+		props.getEverything()
+	}, [])
 
 	return (
 		<>
@@ -125,7 +140,24 @@ function Navigation(props) {
 						</UncontrolledDropdown>
 					</Nav>
 					<NavbarText>
-						Simple Text
+					<UncontrolledDropdown
+						inNavbar
+						nav
+						style={{listStyleType: 'none'}}
+						>
+						<DropdownToggle
+							caret
+							nav
+							
+						>
+						{auth().username}
+						</DropdownToggle>
+						<DropdownMenu right>
+							<DropdownItem onClick={handleSignOut} >
+							Logout
+							</DropdownItem>
+						</DropdownMenu>
+						</UncontrolledDropdown>
 					</NavbarText>
 					</Collapse>
 				</Navbar>

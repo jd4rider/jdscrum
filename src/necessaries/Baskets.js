@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
+import { useAuthUser } from 'react-auth-kit';
+
 import { Col, Button } from "reactstrap"
 
 import Items from "./Items";
@@ -10,6 +12,8 @@ import Items from "./Items";
 
 
 const Baskets = (props) => {
+	const auth = useAuthUser()
+
 	const onDragOverHandler = (e) => {
 		e.preventDefault();
 	}
@@ -19,7 +23,8 @@ const Baskets = (props) => {
 		fetch('http://localhost:3001/items/update', {
 			method: 'PUT',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${auth().token}` 
 			},
 			body: JSON.stringify(items)
 		})
@@ -45,14 +50,8 @@ const Baskets = (props) => {
 	}
 
 	const onPlusClickHandler = (e, type) => {
-		let newid;
-		if(!props.itemsGlobal[props.itemsGlobal.length-1].id) {
-			newid = 1;
-		} else {
-			newid = props.itemsGlobal[props.itemsGlobal.length-1].id + 1;
-		}
 		const newitem = {
-			id: newid,
+			id: props.itemcount+1,
 			title: prompt("Enter title"),
 			description: prompt("Enter description"),
 			status: type,
@@ -63,11 +62,13 @@ const Baskets = (props) => {
 		
 
 		 props.setItemsGlobal([...props.itemsGlobal, newitem]);
+		 props.setItemcount(props.itemcount+1);
 		 fetch('http://localhost:3001/items/insert', {
 			method: 'POST',
 			headers: {
 				'Accept': 'application/json',
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${auth().token}` 
 			},
 			body: JSON.stringify(newitem)
 		 }).then(res => console.log('Insert happened'));
@@ -77,7 +78,12 @@ const Baskets = (props) => {
 		if(window.confirm("Are you sure you want to delete this item?")) {
 			props.setItemsGlobal(props.itemsGlobal.filter(item => item.id !== id));
 			fetch(`http://localhost:3001/items/delete/${id}/${props.ownerid}/${props.canvasid}`, {
-				method: 'DELETE'
+				method: 'DELETE',
+				headers: {
+				    'Content-Type': 'application/json',
+        			'Accept': 'application/json',
+        			'Authorization': `Bearer ${auth().token}` 	
+				}
 			}).then(res => console.log('Delete happened'));
 		}
 	}
